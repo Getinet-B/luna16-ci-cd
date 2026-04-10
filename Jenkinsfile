@@ -15,19 +15,21 @@ pipeline {
             }
         }
 
-        stage('Sanity Checks') {
-            steps {
-                sh '''
-                python3 -m venv .venv
-                . .venv/bin/activate
-                pip install --upgrade pip
-                if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-                pip install black ruff pytest
-                black --check . || true
-                ruff check . || true
-                '''
-            }
+    stage('Sanity Checks') {
+        steps {
+            sh '''
+            python3 -m venv .venv
+            . .venv/bin/activate
+            pip install --upgrade pip
+        
+            # Install CPU-only torch (IMPORTANT FIX)
+            pip install torch --index-url https://download.pytorch.org/whl/cpu
+        
+            # Install rest of dependencies
+            pip install -r requirements.txt
+            '''
         }
+    }
 
         stage('Unit Tests') {
             steps {
